@@ -1,5 +1,4 @@
 -- Create the test database (run as a superuser or a user that can create DBs)
-CREATE DATABASE db;
 \connect db;
 
 -- Schema: users, posts, comments
