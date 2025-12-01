@@ -34,7 +34,7 @@ services:
       - traefik.http.services.prometheus.loadbalancer.server.port=9090
 
   loki:
-    image: grafana/loki:2.8.2
+    image: grafana/loki:3.5.8
     container_name: loki
     expose:
       - 3100
@@ -44,6 +44,9 @@ services:
       - ./data/loki:/loki
       - ./config/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
     restart: unless-stopped
+    labels:
+      - traefik.http.routers.loki.rule=Host(`loki.localhost`)
+      - traefik.http.services.loki.loadbalancer.server.port=3100
 
   tempo:
     image: grafana/tempo:2.8.2
@@ -71,11 +74,19 @@ services:
       - ./config/postgresql:/docker-entrypoint-initdb.d
     restart: unless-stopped
 
+  alloy:
+    image: grafana/alloy:v1.11.3
+    container_name: alloy
+    
+
   traefik:
     image: traefik:3.6
     container_name: traefik
     ports:
       - 80:80
+      - 5432:5432
+    expose:
+      - 8181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./config/traefik/traefik.toml:/etc/traefik/traefik.toml:ro

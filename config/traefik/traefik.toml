@@ -5,15 +5,24 @@
 [entryPoints]
   [entryPoints.web]
     address = ":80"
+    asDefault = true
+
+  [entryPoints.metrics]
+    address = ":8181"
 
 
 [log]
-  level = "INFO" # DEBUG, INFO, ERROR
-  format = "common"
+  level = "INFO"
+  format = "json"
+  filePath = "/var/log/traefik.log"
 
 [accessLog]
   filePath = "/var/log/access.log"
-  format = "common"
+  format = "json"
+  [accessLog.fields]
+    defaultMode = "keep"
+    [accessLog.fields.names]
+      StartUTC = "drop"
 
 [api]
   dashboard = true
@@ -23,7 +32,6 @@
   [providers.docker]
     exposedByDefault = true
   
-  # Read the dynamic config
   # [providers.file]
   #   directory = "/providers/"
   #   watch = true
@@ -34,3 +42,8 @@
   [tracing.otlp]
     [tracing.otlp.http]
       endpoint = "http://tempo:3200/"
+
+[metrics]
+  addInternals = true
+  [metrics.prometheus]
+    entryPoint = "metrics"
