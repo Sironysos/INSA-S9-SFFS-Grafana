@@ -116,64 +116,55 @@ $$;
 
 
 
-
-
-CREATE OR REPLACE FUNCTION random_penguin_latlon(
-    OUT lat FLOAT,
-    OUT lon FLOAT
-)
-AS $$
-DECLARE
-    zone INT := floor(random()*5) + 1;  -- 1 à 5
-BEGIN
-    CASE zone
-        WHEN 1 THEN   -- Péninsule Antarctique
-            lat := rand_range(-64, -60);
-            lon := rand_range(-65, -55);
-
-        WHEN 2 THEN   -- Îles Shetland du Sud
-            lat := rand_range(-63, -61);
-            lon := rand_range(-62, -57);
-
-        WHEN 3 THEN   -- Géorgie du Sud
-            lat := rand_range(-55, -53);
-            lon := rand_range(-39, -35);
-
-        WHEN 4 THEN   -- Îles Falklands
-            lat := rand_range(-53, -51);
-            lon := rand_range(-61, -58);
-
-        WHEN 5 THEN   -- Terre Adélie
-            lat := rand_range(-68, -65);
-            lon := rand_range(135, 146);
-    END CASE;
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-WITH rennais AS (
-    SELECT id
-    FROM pingouin
-    ORDER BY id
-    LIMIT 69
-)
 INSERT INTO position(id, latitude, longitude)
-SELECT id,
-       48.117 + rand_range(-0.005, 0.005),   -- Rennes (≈ ISEN)
-       -1.677 + rand_range(-0.005, 0.005)
-FROM rennais;
+SELECT 
+    id,
+    48.117 + ((random() * 2) - 1) * 0.01 AS latitude,
+    -1.677 + ((random() * 2) - 1) * 0.01 AS longitude
+FROM pingouin
+WHERE id <= 69;
 
-
-WITH rest AS (
-    SELECT p.id
+WITH clusters AS (
+    SELECT row_number() OVER () AS cluster_id, *
+    FROM (
+        VALUES
+            (-82.5, -160.0),
+            (-66.0,  140.0),
+            (-64.0,  -62.0),
+            (-75.0,  -45.0),
+            (-74.0, -110.0),
+            (-90.0,    0.0)
+    ) AS t(lat, lon)
+),
+p2 AS (
+    SELECT p.id,
+           ((p.id % 6) + 1) AS cluster_id
     FROM pingouin p
-    LEFT JOIN position pos ON p.id = pos.id
-    WHERE pos.id IS NULL
+    WHERE p.id > 69
 )
 INSERT INTO position(id, latitude, longitude)
-SELECT id,
-       (random_penguin_latlon()).lat,
-       (random_penguin_latlon()).lon
-FROM rest;
+SELECT p2.id,
+       c.lat + (random()*0.5 - 0.25),
+       c.lon + (random()*0.5 - 0.25)
+FROM p2
+JOIN clusters c USING(cluster_id);
+
+
+
+
+INSERT INTO couples (parent1_id, parent2_id)
+SELECT
+    p1.id AS parent1_id,
+    p2.id AS parent2_id
+FROM (
+    SELECT id, row_number() OVER (ORDER BY random()) AS rn
+    FROM pingouin
+) p1
+JOIN (
+    SELECT id, row_number() OVER (ORDER BY random()) AS rn
+    FROM pingouin
+) p2
+ON p1.rn = p2.rn + 1
+WHERE p1.rn % 2 = 0;
+
 
