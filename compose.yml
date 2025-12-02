@@ -2,7 +2,7 @@ services:
 
   grafana:
     image: grafana/grafana:12.1
-    container_name: grafana
+    container_name: grafana_sffs_312
     user: 1000:1000
     expose: 
       - 3000
@@ -18,7 +18,7 @@ services:
   
   prometheus:
     image: prom/prometheus:v3.7.3
-    container_name: prometheus
+    container_name: prometheus_sffs_312
     user: 1000:1000
     expose:
       - 9090
@@ -35,7 +35,7 @@ services:
 
   loki:
     image: grafana/loki:3.5.8
-    container_name: loki
+    container_name: loki_sffs_312
     expose:
       - 3100
     command:
@@ -50,7 +50,7 @@ services:
 
   tempo:
     image: grafana/tempo:2.8.2
-    container_name: tempo
+    container_name: tempo_sffs_312
     expose:
       - 3200
     command:
@@ -62,7 +62,7 @@ services:
 
   postgresql:
     image: postgres:15
-    container_name: postgresql
+    container_name: postgresql_sffs_312
     expose:
       - 5432
     environment:
@@ -76,12 +76,12 @@ services:
 
   alloy:
     image: grafana/alloy:v1.11.3
-    container_name: alloy
+    container_name: alloy_sffs_312
     
 
   traefik:
     image: traefik:3.6
-    container_name: traefik
+    container_name: traefik_sffs_312
     ports:
       - 80:80
       - 5432:5432
