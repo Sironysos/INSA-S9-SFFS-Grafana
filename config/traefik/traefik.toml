@@ -30,7 +30,7 @@
 
 [providers]
   [providers.docker]
-    exposedByDefault = true
+    exposedByDefault = false
   
   # [providers.file]
   #   directory = "/providers/"

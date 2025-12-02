@@ -13,6 +13,7 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     restart: unless-stopped
     labels:
+      - traefik.enable=true
       - traefik.http.routers.grafana.rule=Host(`grafana.localhost`)
       - traefik.http.services.grafana.loadbalancer.server.port=3000
   
@@ -30,6 +31,7 @@ services:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     restart: unless-stopped
     labels:
+      - traefik.enable=true
       - traefik.http.routers.prometheus.rule=Host(`prometheus.localhost`)
       - traefik.http.services.prometheus.loadbalancer.server.port=9090
 
@@ -45,6 +47,7 @@ services:
       - ./config/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
     restart: unless-stopped
     labels:
+      - traefik.enable=true
       - traefik.http.routers.loki.rule=Host(`loki.localhost`)
       - traefik.http.services.loki.loadbalancer.server.port=3100
 
@@ -101,6 +104,7 @@ services:
       - ./logs/traefik:/var/log
     restart: unless-stopped
     labels:
+      - traefik.enable=true
       - traefik.http.routers.traefik.rule=Host(`traefik.localhost`)
       - traefik.http.routers.traefik.service=api@internal
 
