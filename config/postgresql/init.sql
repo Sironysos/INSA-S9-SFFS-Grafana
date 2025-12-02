@@ -129,29 +129,36 @@ FROM pingouin
 WHERE id <= 69;
 
 WITH clusters AS (
-    SELECT row_number() OVER () AS cluster_id, *
+    -- clusters now include a species column so penguins cluster with same species
+    SELECT row_number() OVER () AS cluster_id, lat, lon, species
     FROM (
         VALUES
-            (-82.5, -160.0),
-            (-66.0,  140.0),
-            (-64.0,  -62.0),
-            (-75.0,  -45.0),
-            (-74.0, -110.0),
-            (-90.0,    0.0)
-    ) AS t(lat, lon)
+            (-82.5, -160.0, 'Gentoo'),
+            (-66.0,  140.0, 'Adelie'),
+            (-64.0,  -62.0, 'Chinstrap'),
+            (-75.0,  -45.0, 'Gentoo'),
+            (-74.0, -110.0, 'Adelie'),
+            (-90.0,    0.0, 'Adelie')
+    ) AS t(lat, lon, species)
 ),
 p2 AS (
-    SELECT p.id,
-           ((p.id % 6) + 1) AS cluster_id
-    FROM pingouin p
-    WHERE p.id > 69
+    SELECT id, species
+    FROM pingouin
+    WHERE id > 69
 )
 INSERT INTO position(id, latitude, longitude)
 SELECT p2.id,
        c.lat + (random()*0.5 - 0.25),
        c.lon + (random()*0.5 - 0.25)
 FROM p2
-JOIN clusters c USING(cluster_id);
+JOIN LATERAL (
+    -- pick a random cluster that matches the penguin's species
+    SELECT lat, lon
+    FROM clusters
+    WHERE clusters.species = p2.species
+    ORDER BY random()
+    LIMIT 1
+) c ON true;
 
 
 
