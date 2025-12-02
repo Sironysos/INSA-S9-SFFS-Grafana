@@ -54,6 +54,7 @@ DECLARE
     flip_len INT;
     body INT;
     sx TEXT;
+    r FLOAT;
 BEGIN
     -- Tirage de l'espèce selon proportions approximatives
     SELECT species INTO sp FROM (
@@ -91,11 +92,14 @@ BEGIN
         body := floor(rand_range(3950, 6300));
     END IF;
 
-    -- Sexe (10% de valeurs NULL comme dans le dataset)
-    SELECT sx INTO sx FROM (
-        VALUES ('MALE'), ('FEMALE'), ('MALE'), ('FEMALE'), (NULL)
-    ) AS t(sex)
-    ORDER BY random() LIMIT 1;
+    r := random();
+    IF r < 0.45 THEN
+        sx := 'MALE';
+    ELSIF r < 0.90 THEN
+        sx := 'FEMALE';
+    ELSE
+        sx := NULL;
+    END IF;
 
     -- Insertion
     INSERT INTO pingouin(species, island, culmen_length_mm, culmen_depth_mm,
