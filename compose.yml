@@ -12,6 +12,8 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
     restart: unless-stopped
+    security_opt:
+      - labels:disable
     labels:
       - traefik.enable=true
       - traefik.http.routers.grafana.rule=Host(`grafana.localhost`)
@@ -30,6 +32,8 @@ services:
       - ./data/prometheus:/prometheus
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     restart: unless-stopped
+    security_opt:
+      - labels:disable
     labels:
       - traefik.enable=true
       - traefik.http.routers.prometheus.rule=Host(`prometheus.localhost`)
@@ -46,6 +50,8 @@ services:
       - ./data/loki:/loki
       - ./config/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
     restart: unless-stopped
+    security_opt:
+      - labels:disable
     labels:
       - traefik.enable=true
       - traefik.http.routers.loki.rule=Host(`loki.localhost`)
@@ -76,6 +82,8 @@ services:
       #- ./data/postgresql:/var/lib/postgresql/data
       - ./config/postgresql:/docker-entrypoint-initdb.d
     restart: unless-stopped
+    security_opt:
+      - labels:disable
 
   promtail:
     image: grafana/promtail:3.5.8
@@ -88,6 +96,8 @@ services:
     command:
       - '-config.file=/etc/promtail/promtail-config.yaml'
     restart: unless-stopped
+    security_opt:
+      - labels:disable
     
 
   traefik:
@@ -103,6 +113,8 @@ services:
       - ./config/traefik/traefik.toml:/etc/traefik/traefik.toml:ro
       - ./logs/traefik:/var/log
     restart: unless-stopped
+    security_opt:
+      - labels:disable
     labels:
       - traefik.enable=true
       - traefik.http.routers.traefik.rule=Host(`traefik.localhost`)
